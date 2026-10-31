@@ -1,0 +1,62 @@
+{
+	"name": "pl_source_to_silver_parent",
+	"properties": {
+		"activities": [
+			{
+				"name": "lk_get_source_table_ids",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT table_id\nFROM ctrl.table_config\nWHERE source_system ='@{pipeline().parameters.source_system}' AND is_active ='true'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_asqldb_source",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "fe_each_source_table_id",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "lk_get_source_table_ids",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('lk_get_source_table_ids').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true
+				}
+			}
+		],
+		"parameters": {
+			"source_system": {
+				"type": "string"
+			}
+		},
+		"annotations": []
+	}
+}
