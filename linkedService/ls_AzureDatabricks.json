@@ -1,0 +1,19 @@
+{
+	"name": "ls_AzureDatabricks",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-7405608734691868.8.azuredatabricks.net",
+			"accessToken": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ls_keyvault_caresync_dev",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "adb-sccess-token"
+			},
+			"existingClusterId": "1031-154735-uywao80r"
+		}
+	}
+}
