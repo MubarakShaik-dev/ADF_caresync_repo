@@ -190,8 +190,7 @@
 		],
 		"parameters": {
 			"adf_run_id": {
-				"type": "string",
-				"defaultValue": "b5bfff95-ea67-42d8-aace-4c6e0f067036"
+				"type": "string"
 			}
 		},
 		"variables": {
