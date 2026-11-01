@@ -71,7 +71,7 @@
 									{
 										"type": "Query",
 										"text": {
-											"value": "INSERT INTO ctrl.audit_log(\n    adf_run_id,\n    table_id,\n    stage,\n    status,\n    start_time\n    ) \nVALUES (\n    '@{pipeline().parameters.adf_run_id}',\n    @{item().table_id},\n    'SILVER_TO_GOLD',\n    'IN_PROGRESS',\n    SYSUTCDATETIME()\n    )\n",
+											"value": "INSERT INTO ctrl.audit_log(\n    adf_run_id,\n    table_id,\n    stage,\n    status,\n    start_time\n    ) \nVALUES (\n    '@{pipeline().parameters.adf_run_id}',\n    '@{item().table_id}',\n    'SILVER_TO_GOLD',\n    'IN_PROGRESS',\n    SYSUTCDATETIME()\n    )\n",
 											"type": "Expression"
 										}
 									}
@@ -82,6 +82,8 @@
 						{
 							"name": "update FAILED status",
 							"type": "Script",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "silver_to_gold",
@@ -118,6 +120,8 @@
 						{
 							"name": "silver_to_gold",
 							"type": "DatabricksNotebook",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "insert IN-PROGRESS status",
@@ -148,6 +152,8 @@
 						{
 							"name": "update SUCCESS status",
 							"type": "Script",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "silver_to_gold",
