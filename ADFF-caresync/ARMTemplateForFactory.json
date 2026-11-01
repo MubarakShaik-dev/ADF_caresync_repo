@@ -327,6 +327,23 @@
 										],
 										"scriptBlockExecutionTimeout": "02:00:00"
 									}
+								},
+								{
+									"name": "update pipeline failure",
+									"type": "Fail",
+									"dependsOn": [
+										{
+											"activity": "silver_to_gold",
+											"dependencyConditions": [
+												"Failed"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"message": "the gold notebook failed",
+										"errorCode": "500"
+									}
 								}
 							]
 						}
