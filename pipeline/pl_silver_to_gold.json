@@ -45,7 +45,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('lk_get_gold_table_id_and_table_name').output.valueactivity('lk_get_source_table_ids').output.value",
+						"value": "@activity('lk_get_gold_table_id_and_table_name').output.value",
 						"type": "Expression"
 					},
 					"isSequential": false,
@@ -82,8 +82,6 @@
 						{
 							"name": "update FAILED status",
 							"type": "Script",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "silver_to_gold",
@@ -120,8 +118,6 @@
 						{
 							"name": "silver_to_gold",
 							"type": "DatabricksNotebook",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "insert IN-PROGRESS status",
@@ -152,8 +148,6 @@
 						{
 							"name": "update SUCCESS status",
 							"type": "Script",
-							"state": "Inactive",
-							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
 								{
 									"activity": "silver_to_gold",
