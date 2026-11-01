@@ -436,7 +436,7 @@
 									"type": "Expression"
 								},
 								"source_file_format": {
-									"value": "@coalesce(\n    activity('lk_get_source_table_details').output.firstRow.source_file_format,\n    ''\n)",
+									"value": "@coalesce(\n    activity('lk_get_source_table_details').output.firstRow.source_file_format,\n    'parquet'\n)",
 									"type": "Expression"
 								}
 							}
@@ -994,6 +994,23 @@
 											}
 										],
 										"scriptBlockExecutionTimeout": "02:00:00"
+									}
+								},
+								{
+									"name": "update pipeline failure",
+									"type": "Fail",
+									"dependsOn": [
+										{
+											"activity": "source_to_silver_ingestion",
+											"dependencyConditions": [
+												"Failed"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"message": "inner pipeline failed",
+										"errorCode": "500"
 									}
 								}
 							]
