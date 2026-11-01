@@ -1,0 +1,12 @@
+{
+	"name": "ADFF-caresync",
+	"properties": {
+		"globalParameters": {
+			"email_recepients": {
+				"type": "string",
+				"value": "mycareer369@outlook.com"
+			}
+		}
+	},
+	"location": "centralindia"
+}
