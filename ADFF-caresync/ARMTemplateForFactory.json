@@ -7,9 +7,21 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "ADFF-caresync"
 		},
+		"ls_AzureDatabricks_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "1031-154735-uywao80r"
+		},
 		"ls_adls_caresync_dev_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://stcaresyncdev03.dfs.core.windows.net/"
+		},
+		"ls_asql_config_tabele_db_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "server-caresyncc.database.windows.net"
+		},
+		"ls_asql_config_tabele_db_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "db_caresync"
 		},
 		"ls_keyvault_caresync_dev_properties_typeProperties_baseUrl": {
 			"type": "string",
@@ -26,18 +38,6 @@
 		"ls_postgresql_caresync_dev_properties_typeProperties_username": {
 			"type": "string",
 			"defaultValue": "neondb_owner"
-		},
-		"ls_asql_config_tabele_db_properties_typeProperties_server": {
-			"type": "string",
-			"defaultValue": "server-caresyncc.database.windows.net"
-		},
-		"ls_asql_config_tabele_db_properties_typeProperties_database": {
-			"type": "string",
-			"defaultValue": "db_caresync"
-		},
-		"ls_AzureDatabricks_properties_typeProperties_existingClusterId": {
-			"type": "string",
-			"defaultValue": "1031-154735-uywao80r"
 		}
 	},
 	"variables": {
@@ -45,141 +45,13 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/ls_adls_caresync_dev')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('ls_adls_caresync_dev_properties_typeProperties_url')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ls_keyvault_caresync_dev')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureKeyVault",
-				"typeProperties": {
-					"baseUrl": "[parameters('ls_keyvault_caresync_dev_properties_typeProperties_baseUrl')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ls_postgresql_caresync_dev')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "PostgreSqlV2",
-				"typeProperties": {
-					"server": "[parameters('ls_postgresql_caresync_dev_properties_typeProperties_server')]",
-					"port": 5432,
-					"database": "[parameters('ls_postgresql_caresync_dev_properties_typeProperties_database')]",
-					"username": "[parameters('ls_postgresql_caresync_dev_properties_typeProperties_username')]",
-					"password": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "ls_keyvault_caresync_dev",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": "postgresql-password"
-					},
-					"sslMode": 2,
-					"authenticationType": "Basic"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_keyvault_caresync_dev')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_PostgreSql')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_postgresql_caresync_dev",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "PostgreSqlV2Table",
-				"schema": [],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_postgresql_caresync_dev')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_adls_Parquet')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_adls_caresync_dev",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"container": {
-						"type": "string"
-					},
-					"folder": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": {
-							"value": "@dataset().folder",
-							"type": "Expression"
-						},
-						"fileSystem": {
-							"value": "@dataset().container",
-							"type": "Expression"
-						}
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_adls_caresync_dev')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ls_asql_config_tabele_db')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"server": "[parameters('ls_asql_config_tabele_db_properties_typeProperties_server')]",
-					"database": "[parameters('ls_asql_config_tabele_db_properties_typeProperties_database')]",
-					"encrypt": "mandatory",
-					"trustServerCertificate": false,
-					"authenticationType": "SystemAssignedManagedIdentity"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_source_to_silver_parent')]",
+			"name": "[concat(parameters('factoryName'), '/pl_silver_to_gold')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "lk_get_source_table_ids",
+						"name": "lk_get_gold_table_id_and_table_name",
 						"type": "Lookup",
 						"dependsOn": [],
 						"policy": {
@@ -194,7 +66,7 @@
 							"source": {
 								"type": "AzureSqlSource",
 								"sqlReaderQuery": {
-									"value": "SELECT table_id\nFROM ctrl.table_config\nWHERE source_system ='@{pipeline().parameters.source_system}' AND is_active ='true'",
+									"value": "SELECT \n    table_id,\n    gold_table_name\nFROM \n    ctrl.table_config\nWHERE \n    stage= 'SILVER_TO_GOLD' AND\n    is_active ='true'",
 									"type": "Expression"
 								},
 								"queryTimeout": "02:00:00",
@@ -213,7 +85,7 @@
 						"type": "ForEach",
 						"dependsOn": [
 							{
-								"activity": "lk_get_source_table_ids",
+								"activity": "lk_get_gold_table_id_and_table_name",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -222,44 +94,11 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('lk_get_source_table_ids').output.value",
+								"value": "@activity('lk_get_gold_table_id_and_table_name').output.value",
 								"type": "Expression"
 							},
 							"isSequential": false,
 							"activities": [
-								{
-									"name": "source_to_silver_ingestion",
-									"type": "ExecutePipeline",
-									"dependsOn": [
-										{
-											"activity": "insert IN-PROGRESS status",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "pl_source_to_silver_child",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"table_id": {
-												"value": "@item().table_id",
-												"type": "Expression"
-											},
-											"adf_run_id": {
-												"value": "@pipeline().parameters.adf_run_id",
-												"type": "Expression"
-											}
-										}
-									}
-								},
 								{
 									"name": "insert IN-PROGRESS status",
 									"type": "Script",
@@ -281,7 +120,7 @@
 											{
 												"type": "Query",
 												"text": {
-													"value": "INSERT INTO ctrl.audit_log(\n    adf_run_id,\n    table_id,\n    stage,\n    status,\n    start_time\n    ) \nVALUES (\n    '@{pipeline().parameters.adf_run_id}',\n    @{item().table_id},\n    'SOURCE_TO_SILVER',\n    'IN_PROGRESS',\n    SYSUTCDATETIME()\n    )\n",
+													"value": "INSERT INTO ctrl.audit_log(\n    adf_run_id,\n    table_id,\n    stage,\n    status,\n    start_time\n    ) \nVALUES (\n    '@{pipeline().parameters.adf_run_id}',\n    '@{item().table_id}',\n    'SILVER_TO_GOLD',\n    'IN_PROGRESS',\n    SYSUTCDATETIME()\n    )\n",
 													"type": "Expression"
 												}
 											}
@@ -294,7 +133,7 @@
 									"type": "Script",
 									"dependsOn": [
 										{
-											"activity": "source_to_silver_ingestion",
+											"activity": "silver_to_gold",
 											"dependencyConditions": [
 												"Failed"
 											]
@@ -324,6 +163,72 @@
 										],
 										"scriptBlockExecutionTimeout": "02:00:00"
 									}
+								},
+								{
+									"name": "silver_to_gold",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "insert IN-PROGRESS status",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": {
+											"value": "/caresync-repo/ADB_caresync_repo/gold/NB_@{item().gold_table_name}",
+											"type": "Expression"
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ls_AzureDatabricks",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "update SUCCESS status",
+									"type": "Script",
+									"dependsOn": [
+										{
+											"activity": "silver_to_gold",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "ls_asql_config_tabele_db",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "Query",
+												"text": {
+													"value": "UPDATE ctrl.audit_log \nSET \n    status = 'SUCCESS',\n    records_written=@{activity('silver_to_gold').output.runOutput.record_count},\n    end_time = SYSUTCDATETIME()\nWHERE \n    adf_run_id=  '@{pipeline().parameters.adf_run_id}' AND \n    table_id = @{item().table_id}",
+													"type": "Expression"
+												}
+											}
+										],
+										"scriptBlockExecutionTimeout": "02:00:00"
+									}
 								}
 							]
 						}
@@ -333,39 +238,17 @@
 					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"source_system": {
-						"type": "string",
-						"defaultValue": "adls_csv"
-					},
 					"adf_run_id": {
 						"type": "string",
-						"defaultValue": "a3"
+						"defaultValue": "a9"
 					}
 				},
 				"annotations": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_asqldb_source')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_source_to_silver_child')]",
-				"[concat(variables('factoryId'), '/linkedServices/ls_asql_config_tabele_db')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_asqldb_source')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_asql_config_tabele_db",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_asql_config_tabele_db')]"
+				"[concat(variables('factoryId'), '/linkedServices/ls_asql_config_tabele_db')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_AzureDatabricks')]"
 			]
 		},
 		{
@@ -863,27 +746,181 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ls_AzureDatabricks')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"name": "[concat(parameters('factoryName'), '/pl_source_to_silver_parent')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"annotations": [],
-				"type": "AzureDatabricks",
-				"typeProperties": {
-					"domain": "https://adb-7405608734691868.8.azuredatabricks.net",
-					"accessToken": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "ls_keyvault_caresync_dev",
-							"type": "LinkedServiceReference"
+				"activities": [
+					{
+						"name": "lk_get_source_table_ids",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
 						},
-						"secretName": "adb-sccess-token"
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "SELECT table_id\nFROM ctrl.table_config\nWHERE source_system ='@{pipeline().parameters.source_system}' AND is_active ='true'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "ds_asqldb_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
 					},
-					"existingClusterId": "[parameters('ls_AzureDatabricks_properties_typeProperties_existingClusterId')]"
-				}
+					{
+						"name": "fe_each_source_table_id",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "lk_get_source_table_ids",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('lk_get_source_table_ids').output.value",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "source_to_silver_ingestion",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "insert IN-PROGRESS status",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_source_to_silver_child",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"table_id": {
+												"value": "@item().table_id",
+												"type": "Expression"
+											},
+											"adf_run_id": {
+												"value": "@pipeline().parameters.adf_run_id",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "insert IN-PROGRESS status",
+									"type": "Script",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "ls_asql_config_tabele_db",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "Query",
+												"text": {
+													"value": "INSERT INTO ctrl.audit_log(\n    adf_run_id,\n    table_id,\n    stage,\n    status,\n    start_time\n    ) \nVALUES (\n    '@{pipeline().parameters.adf_run_id}',\n    @{item().table_id},\n    'SOURCE_TO_SILVER',\n    'IN_PROGRESS',\n    SYSUTCDATETIME()\n    )\n",
+													"type": "Expression"
+												}
+											}
+										],
+										"scriptBlockExecutionTimeout": "02:00:00"
+									}
+								},
+								{
+									"name": "update FAILED status",
+									"type": "Script",
+									"dependsOn": [
+										{
+											"activity": "source_to_silver_ingestion",
+											"dependencyConditions": [
+												"Failed"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "ls_asql_config_tabele_db",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "Query",
+												"text": {
+													"value": "UPDATE ctrl.audit_log \nSET \n    status='FAILED',\n    end_time= SYSUTCDATETIME()\nWHERE \n    adf_run_id = '@{pipeline().parameters.adf_run_id}' AND\n    table_id=@{item().table_id}",
+													"type": "Expression"
+												}
+											}
+										],
+										"scriptBlockExecutionTimeout": "02:00:00"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"source_system": {
+						"type": "string",
+						"defaultValue": "adls_csv"
+					},
+					"adf_run_id": {
+						"type": "string",
+						"defaultValue": "a3"
+					}
+				},
+				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_keyvault_caresync_dev')]"
+				"[concat(variables('factoryId'), '/datasets/ds_asqldb_source')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_source_to_silver_child')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_asql_config_tabele_db')]"
 			]
 		},
 		{
@@ -921,6 +958,176 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_adls_caresync_dev')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_PostgreSql')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_postgresql_caresync_dev",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "PostgreSqlV2Table",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_postgresql_caresync_dev')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_adls_Parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_adls_caresync_dev",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"container": {
+						"type": "string"
+					},
+					"folder": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().folder",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls_caresync_dev')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_asqldb_source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_asql_config_tabele_db",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_asql_config_tabele_db')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_AzureDatabricks')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-7405608734691868.8.azuredatabricks.net",
+					"accessToken": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "ls_keyvault_caresync_dev",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "adb-sccess-token"
+					},
+					"existingClusterId": "[parameters('ls_AzureDatabricks_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_keyvault_caresync_dev')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_adls_caresync_dev')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_adls_caresync_dev_properties_typeProperties_url')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_asql_config_tabele_db')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_asql_config_tabele_db_properties_typeProperties_server')]",
+					"database": "[parameters('ls_asql_config_tabele_db_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SystemAssignedManagedIdentity"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_keyvault_caresync_dev')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('ls_keyvault_caresync_dev_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_postgresql_caresync_dev')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "PostgreSqlV2",
+				"typeProperties": {
+					"server": "[parameters('ls_postgresql_caresync_dev_properties_typeProperties_server')]",
+					"port": 5432,
+					"database": "[parameters('ls_postgresql_caresync_dev_properties_typeProperties_database')]",
+					"username": "[parameters('ls_postgresql_caresync_dev_properties_typeProperties_username')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "ls_keyvault_caresync_dev",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "postgresql-password"
+					},
+					"sslMode": 2,
+					"authenticationType": "Basic"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_keyvault_caresync_dev')]"
 			]
 		}
 	]
